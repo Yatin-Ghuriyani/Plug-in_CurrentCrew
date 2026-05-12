@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Stations | Plug-in</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M12 22v-5%22/><path d=%22M9 8V2%22/><path d=%22M15 8V2%22/><path d=%22M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z%22/></svg>">
+    <link rel="stylesheet" href="style.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <div id="page-loader">
+        <div class="spinner"></div>
+    </div>
+
+    <nav>
+        <a href="index.html" class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>
+            </svg>
+            Plug-in
+        </a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="stations.html" class="active">Find Stations</a>
+            <a href="my-bookings.html">My Bookings</a>
+            <a href="research.html">Research</a>
+            <a href="#" onclick="promptAdmin(event)">Admin Access</a>
+        </div>
+    </nav>
+
+    <main class="container fade-up">
+        <div class="controls-bar">
+            <h2 style="font-size: 1.5rem; letter-spacing: -0.5px;">Charging Stations</h2>
+            <div class="filters" id="filters-container">
+                <button class="filter-pill active" data-sort="default">All</button>
+                <button class="filter-pill" data-sort="nearest">Nearest</button>
+                <button class="filter-pill" data-sort="wait">Lowest Wait</button>
+                <button class="filter-pill" data-sort="fastest">Fastest</button>
+                <button class="filter-pill" data-sort="price">Lowest Price</button>
+            </div>
+        </div>
+        
+        <div class="stations-layout">
+            <!-- Map Section -->
+            <div class="map-wrapper">
+                <button class="location-btn" id="use-location-btn" title="Use My Location">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
+                </button>
+                <div id="map"></div>
+            </div>
+
+            <!-- Station List -->
+            <div class="stations-list" id="stations-container">
+                <div style="padding: 2rem; text-align: center; color: var(--text-secondary);">
+                    <div class="spinner" style="margin: 0 auto;"></div>
+                    <p>Loading station network...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Booking Modal -->
+    <div class="modal-overlay" id="booking-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Secure Charging Slot</h3>
+                <button class="close-btn" onclick="closeModal('booking-modal')">&times;</button>
+            </div>
+            
+            <form id="booking-form">
+                <input type="hidden" id="station-id">
+                <input type="hidden" id="station-name-hidden">
+                <input type="hidden" id="station-distance-hidden">
+                
+                <div class="form-group">
+                    <label class="form-label" for="station-name">Selected Hub</label>
+                    <input type="text" id="station-name" class="form-control" disabled style="background: var(--background-color);">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="user-name">Your Full Name</label>
+                    <input type="text" id="user-name" class="form-control" required placeholder="e.g. John Doe">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="vehicle-no">Vehicle Registration (Optional)</label>
+                    <input type="text" id="vehicle-no" class="form-control" placeholder="e.g., MP 04 AB 1234">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="time-slot">Arrival Time</label>
+                    <input type="time" id="time-slot" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Range Safety Check</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="number" id="battery-percent" class="form-control" placeholder="Battery %" min="0" max="100">
+                        <input type="number" id="max-range" class="form-control" placeholder="Max Range (km)">
+                        <button type="button" class="btn btn-secondary" onclick="checkSafety()">Check Safety</button>
+                    </div>
+                    <p id="safety-result" style="margin-top: 0.5rem; font-size: 0.85rem; font-weight: 500;"></p>
+                </div>
+                
+                <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;" id="submit-booking-btn">Confirm Reservation</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal" style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+            <h3 class="modal-title" style="margin-bottom: 0.5rem;">Booking Confirmed!</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Your charging slot has been successfully reserved.</p>
+            
+            <div style="background: var(--background-color); border-radius: var(--radius-md); padding: 1.5rem; text-align: left; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+                <div style="margin-bottom: 0.5rem;"><strong style="color: var(--text-secondary);">Station:</strong> <span id="conf-station"></span></div>
+                <div style="margin-bottom: 0.5rem;"><strong style="color: var(--text-secondary);">Time:</strong> <span id="conf-time"></span></div>
+                <div style="margin-bottom: 0.5rem;"><strong style="color: var(--text-secondary);">Charger Type:</strong> <span id="conf-type"></span></div>
+                <div style="margin-bottom: 0.5rem;"><strong style="color: var(--text-secondary);">Expected Wait:</strong> <span id="conf-wait"></span></div>
+                <div><strong style="color: var(--text-secondary);">Booking ID:</strong> <span id="conf-id" style="font-family: monospace; color: var(--primary-color);"></span></div>
+            </div>
+
+            <button class="btn" style="width: 100%;" onclick="window.location.href='my-bookings.html'">View My Bookings</button>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
