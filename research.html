@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research & Vision | Plug-in</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M12 22v-5%22/><path d=%22M9 8V2%22/><path d=%22M15 8V2%22/><path d=%22M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z%22/></svg>">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="page-loader">
+        <div class="spinner"></div>
+    </div>
+
+    <nav>
+        <a href="index.html" class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>
+            </svg>
+            Plug-in
+        </a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="stations.html">Find Stations</a>
+            <a href="my-bookings.html">My Bookings</a>
+            <a href="research.html" class="active">Research</a>
+            <a href="#" onclick="promptAdmin(event)">Admin Access</a>
+        </div>
+    </nav>
+
+    <header class="hero fade-up" style="padding: 6rem 5% 4rem; background: transparent; border: none;">
+        <h1 style="font-size: 3rem;">Research-Backed Mobility</h1>
+        <p>Our prototype architecture is heavily inspired by cutting-edge IEEE research in smart grids, EV scheduling, and transportation networks. Here is our roadmap.</p>
+    </header>
+
+    <main class="container fade-up" style="padding-top: 0;">
+        <div class="research-card">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="width: 40px; height: 40px; background: var(--primary-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">📚</div>
+                <h2 style="margin: 0;">IEEE Inspired Architecture Guidance</h2>
+            </div>
+            
+            <p style="margin-bottom: 2rem; color: var(--text-secondary); font-size: 1.05rem;">
+                While our current MVP successfully demonstrates the core discovery and booking workflow, our database and backend architecture have been structured to eventually incorporate the following advanced concepts derived from recent IEEE publications:
+            </p>
+
+            <div style="display: grid; gap: 1.5rem;">
+                <div style="padding: 1.5rem; background: var(--background-color); border-radius: var(--radius-md); border-left: 4px solid var(--primary-color);">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Queue Optimization</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem;">Dynamically distributing EV loads across multiple stations in a geographic radius to minimize collective wait times and prevent grid congestion at single nodes.</p>
+                </div>
+                <div style="padding: 1.5rem; background: var(--background-color); border-radius: var(--radius-md); border-left: 4px solid var(--success-color);">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">EV Charging Scheduling</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem;">Smart slot allocation algorithms that balance user convenience with real-time grid load constraints, ensuring stable power distribution.</p>
+                </div>
+                <div style="padding: 1.5rem; background: var(--background-color); border-radius: var(--radius-md); border-left: 4px solid var(--warning-color);">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Demand Forecasting</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem;">Utilizing historical booking data to predict peak charging hours, paving the way for dynamic pricing models that incentivize off-peak charging.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="research-card mt-2">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="width: 40px; height: 40px; background: var(--text-primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">🚀</div>
+                <h2 style="margin: 0;">Future Scope Timeline</h2>
+            </div>
+
+            <p style="margin-bottom: 2rem; color: var(--text-secondary); font-size: 1.05rem;">
+                As outlined in our project presentation, the roadmap for Plug-in includes transitioning from standard booking workflows to fully ML-driven systems.
+            </p>
+
+            <div class="card-grid">
+                <div style="padding: 1.5rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); transition: transform 0.2s;">
+                    <span class="tag tag-success" style="margin-bottom: 1rem;">Phase 1 (Current)</span>
+                    <h4 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Interactive Discovery</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary);">Real-time mapping, live slot tracking, and guaranteed booking reservations using MongoDB.</p>
+                </div>
+                
+                <div style="padding: 1.5rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); transition: transform 0.2s;">
+                    <span class="tag tag-warning" style="margin-bottom: 1rem;">Phase 2 (Upcoming)</span>
+                    <h4 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Battery-Aware Routing</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary);">Routing users to the optimal station based not just on distance, but ensuring the vehicle can reach it with its current state of charge (SoC).</p>
+                </div>
+
+                <div style="padding: 1.5rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); transition: transform 0.2s;">
+                    <span class="tag tag-warning" style="margin-bottom: 1rem;">Phase 3 (Vision)</span>
+                    <h4 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Dynamic Pricing Engine</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary);">Adjusting per-kWh rates in real-time based on local grid demand and station congestion levels to auto-balance the network.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

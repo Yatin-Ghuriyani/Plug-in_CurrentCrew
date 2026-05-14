@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings | Plug-in</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M12 22v-5%22/><path d=%22M9 8V2%22/><path d=%22M15 8V2%22/><path d=%22M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z%22/></svg>">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="page-loader">
+        <div class="spinner"></div>
+    </div>
+
+    <nav>
+        <a href="index.html" class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>
+            </svg>
+            Plug-in
+        </a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="stations.html">Find Stations</a>
+            <a href="my-bookings.html" class="active">My Bookings</a>
+            <a href="research.html">Research</a>
+            <a href="#" onclick="promptAdmin(event)">Admin Access</a>
+        </div>
+    </nav>
+
+    <main class="container fade-up">
+        <div class="controls-bar">
+            <h2>Your Active Reservations</h2>
+        </div>
+        
+        <!-- Booking View Simulation (Ask for username) -->
+        <div id="login-section" class="card-grid" style="max-width: 500px; margin: 0 auto;">
+            <div class="admin-card">
+                <h3 style="margin-bottom: 1rem;">View Your Bookings</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem;">Enter your vehicle number to securely view or cancel your reservations.</p>
+                <div class="form-group">
+                    <input type="text" id="lookup-name" class="form-control" placeholder="e.g. MP04 AB 1234">
+                </div>
+                <button class="btn" style="width: 100%;" onclick="loadUserBookings()">Lookup Bookings</button>
+            </div>
+        </div>
+
+        <div id="bookings-section" style="display: none;">
+            <button class="btn-outline mb-2" onclick="showLogin()" style="display: inline-block;">&larr; Back</button>
+            
+            <div class="table-container">
+                <table id="bookings-table">
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Station</th>
+                            <th>Time Slot</th>
+                            <th>Duration</th>
+                            <th>Vehicle</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookings-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        async function loadUserBookings() {
+            const vehicleNo = document.getElementById('lookup-name').value.trim();
+            
+            try {
+                // If empty, fetch all bookings
+                const url = vehicleNo ? `${API_BASE_URL}/bookings/vehicle/${encodeURIComponent(vehicleNo)}` : `${API_BASE_URL}/bookings`;
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    document.getElementById('login-section').style.display = 'none';
+                    document.getElementById('bookings-section').style.display = 'block';
+                    renderBookings(result.data);
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Error fetching bookings");
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('bookings-section').style.display = 'none';
+        }
+
+        function renderBookings(bookings) {
+            const tbody = document.getElementById('bookings-body');
+            tbody.innerHTML = '';
+
+            if (bookings.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="padding: 2rem;">No active bookings found.</td></tr>';
+                return;
+            }
+
+            bookings.forEach(b => {
+                const statusHtml = '<span class="tag tag-success">Confirmed</span>';
+                    
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-family: monospace; color: var(--primary-color);">${b._id.substring(0,8).toUpperCase()}</td>
+                    <td style="font-weight: 500;">${b.station_name}</td>
+                    <td>${b.time_slot}</td>
+                    <td>${b.duration ? b.duration + ' Mins' : 'N/A'}</td>
+                    <td>${b.vehicle_no || 'N/A'}</td>
+                    <td>${statusHtml}</td>
+                    <td style="display: flex; gap: 0.5rem;">
+                        <a href="#" onclick="openNavigation(event, null, null, '${b.station_name}')" class="btn-outline" style="padding: 0.25rem 0.75rem; text-decoration: none; display: inline-block;">Navigate</a>
+                        <button class="btn-outline" style="color: var(--error-color); border-color: var(--error-color); padding: 0.25rem 0.75rem;" onclick="cancelBooking('${b._id}')">Cancel</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function cancelBooking(id) {
+            if(!confirm("Are you sure you want to cancel this reservation?")) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/bookings/${id}`, { method: 'DELETE' });
+                const result = await response.json();
+                if(result.status === 'success') {
+                    alert("Reservation cancelled successfully. Slot has been freed.");
+                    // Reload current view
+                    loadUserBookings();
+                } else {
+                    alert("Failed to cancel reservation: " + result.message);
+                }
+            } catch(error) {
+                console.error(error);
+                alert("Error cancelling booking");
+            }
+        }
+    </script>
+</body>
+</html>

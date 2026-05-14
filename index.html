@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plug-in | EV Charging Station Locator</title>
+    <meta name="description" content="Discover and book EV charging stations in Bhopal. Smart mobility prototype.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M12 22v-5%22/><path d=%22M9 8V2%22/><path d=%22M15 8V2%22/><path d=%22M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z%22/></svg>">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Premium Loader -->
+    <div id="page-loader">
+        <div class="spinner"></div>
+        <p style="color: var(--primary-color); font-weight: 500; font-size: 0.9rem;">Initializing Environment...</p>
+    </div>
+
+    <nav>
+        <a href="index.html" class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>
+            </svg>
+            Plug-in
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="active">Home</a>
+            <a href="stations.html">Find Stations</a>
+            <a href="my-bookings.html">My Bookings</a>
+            <a href="research.html">Research</a>
+            <a href="#" onclick="promptAdmin(event)">Admin Access</a>
+        </div>
+    </nav>
+
+    <header class="hero fade-up">
+        <h1>Smart EV Charging<br>for Bhopal</h1>
+        <p>A reliable, data-driven platform to locate nearby charging stations, check real-time availability, and secure your charging slot in advance.</p>
+        <div style="display: flex; gap: 1rem; justify-content: center; align-items: center;">
+            <a href="stations.html" class="btn">
+                Find Nearby Stations
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="research.html" class="btn btn-secondary">Read Our Research</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="mb-2 text-center fade-up" style="transition-delay: 0.2s;">
+            <h2 style="font-size: 2rem; margin-bottom: 1rem;">Why Plug-in?</h2>
+            <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
+                We are building a smart mobility ecosystem to eliminate range anxiety and optimize the charging experience for EV owners in Bhopal.
+            </p>
+        </section>
+
+        <div class="card-grid mt-2 fade-up" style="transition-delay: 0.4s;">
+            <div class="station-card">
+                <div style="font-size: 1.5rem; margin-bottom: 1rem;">📍</div>
+                <h3>Real-Time Discovery</h3>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.95rem;">Locate active charging stations near you with live distance and availability metrics instantly.</p>
+            </div>
+            <div class="station-card">
+                <div style="font-size: 1.5rem; margin-bottom: 1rem;">⏱️</div>
+                <h3>Advance Booking</h3>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.95rem;">Reserve a charging slot ahead of time to avoid long queues and frustrating wait times.</p>
+            </div>
+            <div class="station-card">
+                <div style="font-size: 1.5rem; margin-bottom: 1rem;">⚡</div>
+                <h3>Smart Scheduling</h3>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.95rem;">Optimized station recommendations based on your desired charging speed and current network demand.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer style="text-align: center; padding: 2rem; margin-top: 4rem; border-top: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.85rem;">
+        <p>&copy; 2026 Plug-in. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
