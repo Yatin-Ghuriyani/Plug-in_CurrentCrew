@@ -55,3 +55,12 @@ Then visit `http://localhost:8000` in your browser.
 
 ## Note for Team
 Please read the `TEAM_NOTEBOOK.md` file for an in-depth breakdown of the architecture, pitch points, and how to present this effectively to judges.
+
+Team Current Crew
+
+Members:
+- Yatin Ghuriyani
+- Suryansh Soni
+- Uday Sharma
+- Shubhi Nema
+- Tanishq Agarwal
