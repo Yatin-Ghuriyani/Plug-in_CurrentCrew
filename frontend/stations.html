@@ -34,6 +34,10 @@
         <div class="controls-bar">
             <h2 style="font-size: 1.5rem; letter-spacing: -0.5px;">Charging Stations</h2>
             <div class="filters" id="filters-container">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+                    <label for="time-filter" style="font-weight: 500; font-size: 0.9rem; color: var(--text-secondary);">Select Time:</label>
+                    <input type="time" id="time-filter" class="form-control" style="padding: 0.25rem 0.5rem; width: auto; font-size: 0.9rem;">
+                </div>
                 <button class="filter-pill active" data-sort="default">All</button>
                 <button class="filter-pill" data-sort="nearest">Nearest</button>
                 <button class="filter-pill" data-sort="wait">Lowest Wait</button>
@@ -92,6 +96,15 @@
                 <div class="form-group">
                     <label class="form-label" for="time-slot">Arrival Time</label>
                     <input type="time" id="time-slot" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="duration">Charging Duration</label>
+                    <select id="duration" class="form-control" required>
+                        <option value="30">30 Mins</option>
+                        <option value="60">1 Hour</option>
+                        <option value="120">2 Hours</option>
+                    </select>
                 </div>
                 
                 <div class="form-group">

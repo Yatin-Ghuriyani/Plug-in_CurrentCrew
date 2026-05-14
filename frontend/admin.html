@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | Plug-in</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M12 22v-5%22/><path d=%22M9 8V2%22/><path d=%22M15 8V2%22/><path d=%22M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z%22/></svg>">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M12 22v-5%22/><path d=%22M9 8V2%22/><path d=%22M15 8V2%22/><path d=%22M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z%22/></svg>">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body style="background-color: var(--background-color);">
     <div id="page-loader">
         <div class="spinner"></div>
@@ -14,8 +17,12 @@
 
     <nav style="margin-bottom: 2rem;">
         <a href="index.html" class="logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22v-5" />
+                <path d="M9 8V2" />
+                <path d="M15 8V2" />
+                <path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z" />
             </svg>
             Plug-in Admin
         </a>
@@ -36,21 +43,28 @@
         <!-- Dashboard Stats -->
         <div class="card-grid mb-2">
             <div class="admin-card" style="padding: 1.5rem; text-align: center; margin-bottom: 0;">
-                <h4 style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">Total Active Stations</h4>
-                <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-color);" id="stat-stations">0</div>
+                <h4 style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">Total Active
+                    Stations</h4>
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-color);" id="stat-stations">0
+                </div>
             </div>
             <div class="admin-card" style="padding: 1.5rem; text-align: center; margin-bottom: 0;">
-                <h4 style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">Current Bookings</h4>
-                <div style="font-size: 2.5rem; font-weight: 700; color: var(--success-color);" id="stat-bookings">0</div>
+                <h4 style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">Current Bookings
+                </h4>
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--success-color);" id="stat-bookings">0
+                </div>
             </div>
             <div class="admin-card" style="padding: 1.5rem; text-align: center; margin-bottom: 0;">
-                <h4 style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">Network Utilization</h4>
-                <div style="font-size: 2.5rem; font-weight: 700; color: var(--warning-color);" id="stat-utilization">0%</div>
+                <h4 style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">Network Utilization
+                </h4>
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--warning-color);" id="stat-utilization">0%
+                </div>
             </div>
         </div>
 
         <div class="admin-card">
-            <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">📍 Station Infrastructure Management</h3>
+            <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">📍 Station Infrastructure
+                Management</h3>
             <div class="table-container">
                 <table id="admin-stations-table">
                     <thead>
@@ -69,9 +83,10 @@
                 </table>
             </div>
         </div>
-        
+
         <div class="admin-card">
-            <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">📊 Real-Time Reservation Feed</h3>
+            <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">📊 Real-Time Reservation
+                Feed</h3>
             <div class="table-container">
                 <table id="admin-bookings-table">
                     <thead>
@@ -80,6 +95,7 @@
                             <th>Customer Name</th>
                             <th>Assigned Station</th>
                             <th>Time Window</th>
+                            <th>Duration</th>
                             <th>System Timestamp</th>
                         </tr>
                     </thead>
@@ -99,12 +115,17 @@
                 <button class="close-btn" onclick="closeModal('add-station-modal')">&times;</button>
             </div>
             <form id="add-station-form" onsubmit="addStation(event)">
-                <div class="form-group"><input type="text" id="s-name" class="form-control" placeholder="Station Name" required></div>
-                <div class="form-group"><input type="text" id="s-address" class="form-control" placeholder="Physical Address" required></div>
+                <div class="form-group"><input type="text" id="s-name" class="form-control" placeholder="Station Name"
+                        required></div>
+                <div class="form-group"><input type="text" id="s-address" class="form-control"
+                        placeholder="Physical Address" required></div>
                 <div style="display: flex; gap: 1rem;">
-                    <div class="form-group"><input type="number" step="any" id="s-lat" class="form-control" placeholder="Latitude (e.g. 23.23)" required></div>
-                    <div class="form-group"><input type="number" step="any" id="s-lng" class="form-control" placeholder="Longitude (e.g. 77.43)" required></div>
-                    <div class="form-group"><input type="number" id="s-slots" class="form-control" placeholder="Total Slots" required></div>
+                    <div class="form-group"><input type="number" step="any" id="s-lat" class="form-control"
+                            placeholder="Latitude (e.g. 23.23)" required></div>
+                    <div class="form-group"><input type="number" step="any" id="s-lng" class="form-control"
+                            placeholder="Longitude (e.g. 77.43)" required></div>
+                    <div class="form-group"><input type="number" id="s-slots" class="form-control"
+                            placeholder="Total Slots" required></div>
                 </div>
                 <div style="display: flex; gap: 1rem;">
                     <div class="form-group">
@@ -115,7 +136,8 @@
                             <option value="Level 2 AC (22kW)">Level 2 AC (22kW)</option>
                         </select>
                     </div>
-                    <div class="form-group"><input type="number" step="any" id="s-price" class="form-control" placeholder="Price/kWh (₹)" required></div>
+                    <div class="form-group"><input type="number" step="any" id="s-price" class="form-control"
+                            placeholder="Price/kWh (₹)" required></div>
                 </div>
                 <button type="submit" class="btn" style="width: 100%;">Initialize Station</button>
             </form>
@@ -160,7 +182,7 @@
                 const bRes = await fetch(`${API_BASE_URL}/bookings`);
                 const bData = await bRes.json();
                 renderAdminBookings(bData.data);
-                
+
                 // Update Stats
                 updateDashboardStats(globalStations, bData.data);
             } catch (error) {
@@ -171,12 +193,12 @@
         function updateDashboardStats(stations, bookings) {
             document.getElementById('stat-stations').innerText = stations.length;
             document.getElementById('stat-bookings').innerText = bookings.length;
-            
+
             let totalSlots = 0;
             let occupiedSlots = bookings.length; // rough proxy for demo
-            
+
             stations.forEach(s => { totalSlots += (s.slots_available + 2); }); // fake total capacity
-            
+
             if (totalSlots > 0) {
                 const util = Math.min(100, Math.round((occupiedSlots / totalSlots) * 100));
                 document.getElementById('stat-utilization').innerText = `${util}%`;
@@ -188,7 +210,7 @@
             tbody.innerHTML = '';
             stations.forEach(s => {
                 let statusBadge = s.slots_available > 0 ? '<span class="tag tag-success">Online</span>' : '<span class="tag tag-error">Congested</span>';
-                
+
                 tbody.innerHTML += `
                     <tr>
                         <td style="font-weight:600;">${s.name}</td>
@@ -208,19 +230,20 @@
         function renderAdminBookings(bookings) {
             const tbody = document.getElementById('admin-bookings-body');
             tbody.innerHTML = '';
-            
+
             if (bookings.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="padding: 2rem; color: var(--text-secondary);">No active bookings on the network.</td></tr>';
                 return;
             }
-            
+
             bookings.reverse().forEach(b => {
                 tbody.innerHTML += `
                     <tr>
-                        <td style="font-family: monospace; color: var(--primary-color);">${b._id.substring(0,8).toUpperCase()}</td>
+                        <td style="font-family: monospace; color: var(--primary-color);">${b._id.substring(0, 8).toUpperCase()}</td>
                         <td style="font-weight: 500;">${b.user_name}</td>
                         <td>${b.station_name}</td>
                         <td><span class="tag tag-warning">${b.time_slot}</span></td>
+                        <td>${b.duration ? b.duration + ' Mins' : 'N/A'}</td>
                         <td style="color: var(--text-secondary); font-size: 0.8rem;">${b.booking_date || 'Just now'}</td>
                     </tr>
                 `;
@@ -241,7 +264,7 @@
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
             btn.innerText = "Deploying...";
-            
+
             const payload = {
                 name: document.getElementById('s-name').value,
                 address: document.getElementById('s-address').value,
@@ -257,7 +280,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            
+
             btn.innerText = "Initialize Station";
             closeModal('add-station-modal');
             document.getElementById('add-station-form').reset();
@@ -265,7 +288,7 @@
         }
 
         async function deleteStation(id) {
-            if(!confirm("CRITICAL: Decommission this station from the network?")) return;
+            if (!confirm("CRITICAL: Decommission this station from the network?")) return;
             await fetch(`${API_BASE_URL}/stations/${id}`, { method: 'DELETE' });
             loadAdminData();
         }
@@ -282,32 +305,33 @@
             closeModal('update-slots-modal');
             loadAdminData();
         }
-        
+
         // Fun hackathon demo feature
         async function simulateTraffic() {
-            if(!confirm("This will randomly decrease slots to simulate live network traffic. Proceed?")) return;
-            
-            if(globalStations.length === 0) return;
-            
+            if (!confirm("This will randomly decrease slots to simulate live network traffic. Proceed?")) return;
+
+            if (globalStations.length === 0) return;
+
             // Pick a random station that has slots
             const availableStations = globalStations.filter(s => s.slots_available > 0);
-            if(availableStations.length === 0) {
+            if (availableStations.length === 0) {
                 alert("All stations are currently full!");
                 return;
             }
-            
+
             const randomStation = availableStations[Math.floor(Math.random() * availableStations.length)];
             const newSlots = randomStation.slots_available - 1;
-            
+
             await fetch(`${API_BASE_URL}/stations/${randomStation._id}/slots`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ slots_available: newSlots })
             });
-            
+
             alert(`Simulated 1 vehicle arriving at ${randomStation.name}.`);
             loadAdminData();
         }
     </script>
 </body>
+
 </html>

@@ -15,11 +15,49 @@ db = client['ev_platform']
 stations_collection = db['stations']
 bookings_collection = db['bookings']
 
+def time_to_mins(t_str):
+    try:
+        h, m = map(int, t_str.split(':'))
+        return h * 60 + m
+    except:
+        return 0
+
 @app.route('/api/stations', methods=['GET'])
 def get_stations():
+    time_filter = request.args.get('time')
     stations = []
     for station in stations_collection.find():
         station['_id'] = str(station['_id'])
+        
+        # Use total_slots if exists, otherwise fallback to slots_available as max capacity
+        total_slots = station.get('total_slots', station.get('slots_available', 0))
+        
+        if time_filter:
+            filter_mins = time_to_mins(time_filter)
+            # Find confirmed bookings where the requested time falls within the booking's duration
+            overlapping_bookings = list(bookings_collection.find({
+                "station_id": station['_id'],
+                "status": "confirmed",
+                "start_time_mins": {"$lte": filter_mins},
+                "end_time_mins": {"$gt": filter_mins}
+            }))
+            occupied_slots = [b.get('assigned_slot') for b in overlapping_bookings if b.get('assigned_slot')]
+            current_slots = total_slots - len(occupied_slots)
+            station['occupied_slots'] = occupied_slots
+            
+            if current_slots <= 0 and overlapping_bookings:
+                earliest_end_mins = min([b.get('end_time_mins') for b in overlapping_bookings])
+                h = earliest_end_mins // 60
+                m = earliest_end_mins % 60
+                station['next_available_time'] = f"{h:02d}:{m:02d}"
+        else:
+            # If no time selected, return total capacity
+            current_slots = total_slots
+            station['occupied_slots'] = []
+            
+        station['slots_available'] = max(0, current_slots)
+        # Ensure total_slots is returned
+        station['total_slots'] = total_slots
         stations.append(station)
     return jsonify({"status": "success", "data": stations}), 200
 
@@ -33,6 +71,7 @@ def add_station():
     # Distance and Wait Time are dynamically calculated on the frontend, so set defaults if missing
     data['distance'] = data.get('distance', "Calculating...")
     data['wait_time'] = data.get('wait_time', "0 mins")
+    data['total_slots'] = int(data.get('slots_available', 0))
     
     result = stations_collection.insert_one(data)
     data['_id'] = str(result.inserted_id)
@@ -53,7 +92,10 @@ def update_slots(station_id):
         
     result = stations_collection.update_one(
         {"_id": ObjectId(station_id)},
-        {"$set": {"slots_available": int(data['slots_available'])}}
+        {"$set": {
+            "slots_available": int(data['slots_available']),
+            "total_slots": int(data['slots_available'])
+        }}
     )
     if result.modified_count:
         return jsonify({"status": "success", "message": "Slots updated"}), 200
@@ -70,11 +112,32 @@ def create_booking():
     if not station:
         return jsonify({"status": "error", "message": "Station not found"}), 404
 
+    total_slots = station.get('total_slots', station.get('slots_available', 0))
+    time_slot = data['time_slot']
+    duration = int(data.get('duration', 30))
+    start_time_mins = time_to_mins(time_slot)
+    end_time_mins = start_time_mins + duration
+
+    # Find existing confirmed bookings that overlap with this time window
+    overlapping_bookings = list(bookings_collection.find({
+        "station_id": data['station_id'],
+        "status": "confirmed",
+        "start_time_mins": {"$lt": end_time_mins},
+        "end_time_mins": {"$gt": start_time_mins}
+    }))
+    
+    occupied_slot_numbers = [b.get('assigned_slot') for b in overlapping_bookings if b.get('assigned_slot')]
+    
+    assigned_slot = None
+    for i in range(1, total_slots + 1):
+        if i not in occupied_slot_numbers:
+            assigned_slot = i
+            break
+
+    if assigned_slot is None:
+        return jsonify({"status": "error", "message": "Can't be booked until the time a slot in that station gets free."}), 400
+
     status = "confirmed"
-    is_waitlisted = False
-    if station.get('slots_available', 0) <= 0:
-        status = "waitlisted"
-        is_waitlisted = True
 
     booking = {
         "station_id": data['station_id'],
@@ -82,18 +145,17 @@ def create_booking():
         "user_name": data['user_name'],
         "vehicle_no": data.get('vehicle_no', ''),
         "time_slot": data['time_slot'],
+        "duration": duration,
+        "start_time_mins": start_time_mins,
+        "end_time_mins": end_time_mins,
+        "assigned_slot": assigned_slot,
         "status": status,
         "booking_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     
     result = bookings_collection.insert_one(booking)
     
-    # Only decrease slots if confirmed
-    if not is_waitlisted:
-        stations_collection.update_one(
-            {"_id": ObjectId(data['station_id'])},
-            {"$inc": {"slots_available": -1}}
-        )
+    # We no longer decrement static slots_available here because availability is time-based.
     
     booking['_id'] = str(result.inserted_id)
     return jsonify({"status": "success", "message": "Booking successful", "data": booking}), 201
@@ -124,12 +186,7 @@ def cancel_booking(booking_id):
     result = bookings_collection.delete_one({"_id": ObjectId(booking_id)})
     
     if result.deleted_count:
-        # Increase slots back ONLY if it was confirmed, not waitlisted
-        if booking.get('status') == 'confirmed':
-            stations_collection.update_one(
-                {"_id": ObjectId(booking['station_id'])},
-                {"$inc": {"slots_available": 1}}
-            )
+        # We no longer increment static slots_available here because availability is time-based.
         return jsonify({"status": "success", "message": "Booking cancelled"}), 200
     return jsonify({"status": "error", "message": "Failed to cancel"}), 500
 

@@ -55,6 +55,7 @@
                             <th>Booking ID</th>
                             <th>Station</th>
                             <th>Time Slot</th>
+                            <th>Duration</th>
                             <th>Vehicle</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -105,16 +106,14 @@
             }
 
             bookings.forEach(b => {
-                const isWaitlisted = b.status === 'waitlisted';
-                const statusHtml = isWaitlisted ? 
-                    '<span class="tag tag-warning">Waitlisted</span>' : 
-                    '<span class="tag tag-success">Confirmed</span>';
+                const statusHtml = '<span class="tag tag-success">Confirmed</span>';
                     
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="font-family: monospace; color: var(--primary-color);">${b._id.substring(0,8).toUpperCase()}</td>
                     <td style="font-weight: 500;">${b.station_name}</td>
                     <td>${b.time_slot}</td>
+                    <td>${b.duration ? b.duration + ' Mins' : 'N/A'}</td>
                     <td>${b.vehicle_no || 'N/A'}</td>
                     <td>${statusHtml}</td>
                     <td style="display: flex; gap: 0.5rem;">

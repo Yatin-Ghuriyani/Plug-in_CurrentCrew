@@ -25,6 +25,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (document.getElementById('map')) {
+        // Initialize time filter to current time
+        const timeFilter = document.getElementById('time-filter');
+        if (timeFilter) {
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            timeFilter.value = `${hh}:${mm}`;
+            
+            // Re-fetch stations when time changes
+            timeFilter.addEventListener('change', () => {
+                fetchStations();
+            });
+        }
+
         initMap();
         fetchStations();
         setupFilters();
@@ -56,7 +70,13 @@ function initMap() {
 // Fetch Stations
 async function fetchStations() {
     try {
-        const response = await fetch(`${API_BASE_URL}/stations`);
+        let url = `${API_BASE_URL}/stations`;
+        const timeFilter = document.getElementById('time-filter');
+        if (timeFilter && timeFilter.value) {
+            url += `?time=${encodeURIComponent(timeFilter.value)}`;
+        }
+        
+        const response = await fetch(url);
         const result = await response.json();
 
         if (result.status === 'success') {
@@ -98,6 +118,20 @@ function renderStations(stations) {
 
         const card = document.createElement('div');
         card.className = 'station-card';
+        
+        let slotsHtml = '';
+        const total = station.total_slots || 0;
+        const occupied = station.occupied_slots || [];
+        for (let i = 1; i <= total; i++) {
+            const isOccupied = occupied.includes(i);
+            const bgColor = isOccupied ? '#FEE2E2' : '#D1FAE5';
+            const textColor = isOccupied ? '#EF4444' : '#059669';
+            const borderColor = isOccupied ? '#FCA5A5' : '#6EE7B7';
+            slotsHtml += `<div style="background: ${bgColor}; color: ${textColor}; border: 1px solid ${borderColor}; border-radius: 4px; padding: 0.4rem 0; text-align: center; font-size: 0.85rem; font-weight: 600;">${i}</div>`;
+        }
+        
+        const occupancyPercent = total > 0 ? (occupied.length / total) * 100 : 0;
+
         card.innerHTML = `
             <div class="station-header" style="cursor: pointer; margin-bottom: 0;" onclick="toggleStationDetails('${station._id}')">
                 <div style="flex: 1;">
@@ -116,7 +150,7 @@ function renderStations(stations) {
                         <span class="tag ${statusClass}">● ${statusText}</span>
                     </div>
                     <div class="detail-item">
-                        <span style="font-weight: 500;">${station.slots_available}</span> <span style="color: var(--text-secondary)">Slots Open</span>
+                        <span style="font-weight: 500;">${station.slots_available}/${station.total_slots}</span> <span style="color: var(--text-secondary)">Slots Open</span>
                     </div>
                     <div class="detail-item">
                         <span style="color: var(--text-secondary)">⚡</span> ${station.type}
@@ -126,9 +160,17 @@ function renderStations(stations) {
                     </div>
                 </div>
                 
+                <h4 style="margin-bottom: 0.5rem; font-size: 1rem; color: #374151;">Live Occupancy</h4>
+                <div style="width: 100%; height: 10px; background: #E5E7EB; border-radius: 5px; margin-bottom: 1rem; overflow: hidden;">
+                    <div style="width: ${occupancyPercent}%; height: 100%; background: linear-gradient(90deg, #F59E0B, #EF4444); transition: width 0.3s ease;"></div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(30px, 1fr)); gap: 0.4rem; margin-bottom: 1.5rem;">
+                    ${slotsHtml}
+                </div>
+                
                 <div class="live-activity" style="margin-bottom: 0.75rem;">
                     <div class="pulse-dot"></div>
-                    <span style="flex:1;">${Math.floor(Math.random() * 3) + 1} vehicles charging currently</span>
+                    <span style="flex:1;">${occupied.length} vehicles charging currently</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 1.25rem; padding: 0.75rem; background: var(--background-color); border-radius: var(--radius-sm);">
                     <span>🔄 Updated ${Math.floor(Math.random() * 5) + 1} min ago</span>
@@ -137,8 +179,8 @@ function renderStations(stations) {
                 
                 <div class="card-actions">
                     <button class="btn" style="flex: 2; width: 100%;" 
-                        onclick="event.stopPropagation(); openBookingModal('${station._id}', '${station.name}', '${station.distance}')">
-                        ${station.slots_available === 0 ? 'Join Waitlist' : 'Reserve Slot'}
+                        onclick="event.stopPropagation(); ${station.slots_available === 0 ? `alert('Can\\'t be booked until the time a slot in that station gets free.')` : `openBookingModal('${station._id}', '${station.name}', '${station.distance}')`}">
+                        ${station.slots_available === 0 ? (station.next_available_time ? `Available at ${station.next_available_time}` : 'Station Full') : 'Reserve Slot'}
                     </button>
                     <a href="#" class="btn-outline" onclick="openNavigation(event, ${station.lat}, ${station.lng}, '${station.name}')">
                         Navigate
@@ -191,8 +233,8 @@ function updateMapMarkers(stations) {
                 <p style="margin: 0 0 5px 0; font-size: 12px; color: #4B5563;">${station.type}</p>
                 <p style="margin: 0 0 10px 0; font-size: 12px; font-weight: 600; color: ${station.slots_available > 0 ? '#10B981' : '#EF4444'}">${station.slots_available} Slots Available</p>
                 <button class="btn" style="width: 100%; padding: 0.4rem; font-size: 0.85rem;" 
-                    onclick="openBookingModal('${station._id}', '${station.name}', '${station.distance}')">
-                    ${station.slots_available === 0 ? 'Waitlist' : 'Reserve Slot'}
+                    onclick="${station.slots_available === 0 ? `alert('Can\\'t be booked until the time a slot in that station gets free.')` : `openBookingModal('${station._id}', '${station.name}', '${station.distance}')`}">
+                    ${station.slots_available === 0 ? (station.next_available_time ? `Available at ${station.next_available_time}` : 'Station Full') : 'Reserve Slot'}
                 </button>
             </div>
         `);
@@ -324,6 +366,12 @@ function openBookingModal(stationId, stationName, stationDistance) {
     if(document.getElementById('station-distance-hidden')) document.getElementById('station-distance-hidden').value = stationDistance || '10';
     document.getElementById('station-name').value = stationName;
     
+    // Sync booking time with time filter if available
+    const timeFilter = document.getElementById('time-filter');
+    if (timeFilter && timeFilter.value) {
+        document.getElementById('time-slot').value = timeFilter.value;
+    }
+    
     const modal = document.getElementById('booking-modal');
     modal.classList.add('active');
 }
@@ -351,7 +399,8 @@ async function handleBookingSubmit(e) {
         station_name: document.getElementById('station-name-hidden').value,
         user_name: document.getElementById('user-name').value,
         vehicle_no: document.getElementById('vehicle-no').value,
-        time_slot: document.getElementById('time-slot').value
+        time_slot: document.getElementById('time-slot').value,
+        duration: document.getElementById('duration') ? document.getElementById('duration').value : 30
     };
 
     try {
@@ -369,16 +418,12 @@ async function handleBookingSubmit(e) {
             // Find selected station to grab details for modal
             const selectedStation = allStations.find(s => s._id === bookingData.station_id);
             
-            // Adjust title based on Waitlist vs Confirmed
+            // Adjust title
             const modalTitle = document.querySelector('#success-modal .modal-title');
             const modalDesc = document.querySelector('#success-modal p');
-            if (result.data.status === 'waitlisted') {
-                modalTitle.innerText = 'Added to Waitlist!';
-                modalDesc.innerText = 'This station is currently full. You have been added to the queue.';
-            } else {
-                modalTitle.innerText = 'Booking Confirmed!';
-                modalDesc.innerText = 'Your charging slot has been successfully reserved.';
-            }
+            
+            modalTitle.innerText = 'Booking Confirmed!';
+            modalDesc.innerText = 'Your charging slot has been successfully reserved.';
             
             let confWaitTime = selectedStation ? (selectedStation.slots_available > 0 ? "0 mins" : selectedStation.wait_time) : 'Calculating...';
             
